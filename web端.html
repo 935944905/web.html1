@@ -228,6 +228,7 @@
             width: 100%;
             height: auto;
             }
+
     </style>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
@@ -450,43 +451,14 @@
                         <p>Please enter your personal information and the dog's situation, and we will promptly feedback the data to the adoption station.</p>
 
                         <div class="container2">
-                            <form action="http://localhost:3000/save" method="POST">
-                                <div class="row">
-                                    <div class="col-25">
-                                        <label for="fname">First Name</label>
-                                    </div>
-                                    <div class="col-75">
-                                        <input type="text" id="fname" name="firstname" placeholder="Your name..">
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-25">
-                                        <label for="lname">Last Name</label>
-                                    </div>
-                                    <div class="col-75">
-                                        <input type="text" id="lname" name="lastname" placeholder="Your last name..">
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-25">
-                                        <label for="phone">Phonenumber</label>
-                                    </div>
-                                    <div class="col-75">
-                                        <input type="text" id="phone" name="phonenumber" placeholder="Your phonenumber..">
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-25">
-                                        <label for="subject">Describe</label>
-                                    </div>
-                                    <div class="col-75">
-                                        <textarea id="subject" name="subject" placeholder="Write something.." style="height:200px"></textarea>
-                                    </div>
-                                </div>
-                                <br>
-                                <div class="row">
-                                    <input type="submit" value="Submit">
-                                </div>
+                            <form id="myForm">
+                                <label>Name:</label>
+                                <input type="text" name="name" required>
+                                <br><br>
+                                <label>Email:</label>
+                                <input type="email" name="email" required>
+                                <br><br>
+                                <button type="submit">Submit</button>
                             </form>
                         </div>
                         
@@ -617,30 +589,35 @@
         renderTable(); // 初始化表格第一页数据
         };
 
-        function saveData() {//链接数据
-            // 获取表单数据
-            const fname = document.getElementById("fname").value;
-            const lname = document.getElementById("lname").value;
-            const Phonenumber = document.getElementById("phone").value;
-            const subject = document.getElementById("subject").value;
+        document.getElementById("myForm").addEventListener("submit", function(event) {
+    event.preventDefault();
 
-            // 格式化数据
-            const data = `First Name: ${fname}\nLast Name: ${lname}\nPhonenumber: ${phone}\nSubject: ${subject}\n-------------------\n`;
+    // 获取表单数据
+    const formData = new FormData(this);
+    const data = {};
+    formData.forEach((value, key) => {
+        data[key] = value;
+    });
 
-            // 创建 Blob 对象
-            const blob = new Blob([data], { type: "text/plain" });
-
-            // 创建一个下载链接
-            const a = document.createElement("a");
-            a.href = URL.createObjectURL(blob);
-            a.download = "data.txt"; // 文件名
-            a.click();
-
-            // 释放 URL 对象
-            URL.revokeObjectURL(a.href);
-        }
-
-
+    // 发送 POST 请求到 Google Apps Script
+    fetch("https://script.google.com/macros/s/AKfycby5obgpCuF8YEwOzW-RcL5aXxj5igeFkhaQ5rAIoy0NVrUb-KV8RTn5lgyxRdV5wYg/exec", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+    })
+    .then(response => response.text())
+    .then(data => {
+        alert("提交成功！");
+        console.log(data);
+    })
+    .catch(error => {
+        alert("提交失败，请稍后重试！");
+        console.error("Error:", error);
+    });
+});
 </script>
+
 
 </html>
